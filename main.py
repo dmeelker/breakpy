@@ -18,14 +18,21 @@ class game:
     lastUpdateTime = 0
     updatesPerSecond = 100
     
+    clock = None
+    
     entities = []
     paddle = None
+    score = 0
+    font = None
 
     def run(self):
         pygame.init()
-        pygame.display.set_caption("BreakPy")
-    
+        self.updateTitle()
+        
         self.screen = pygame.display.set_mode(self.screenSize)
+        self.clock = pygame.time.Clock()
+        
+        self.font = pygame.font.Font('freesansbold.ttf', 18)
         
         self.paddle = entity.paddle()
         self.paddle.setImage(pygame.image.load(os.path.join('images', 'paddle.png')))
@@ -40,15 +47,18 @@ class game:
         self.placeBlocks()
         
         self.mainLoop()
-
+    def updateTitle(self):
+        pygame.display.set_caption("BreakPy. Score: " + str(self.score))
+        
     def placeBlocks(self):
         blockimage = pygame.image.load(os.path.join('images', 'block.png')) 
         spacing = 8;
         
-        for y in range(2):
+        for y in range(3):
             for x in range(int((self.screenSize[0] - spacing) / (30 + spacing))):
                 block = entity.block()
                 block.setImage(blockimage)
+                block.hitpoints = 1
                 block.location = types.vector(spacing + (x * (30 + spacing)), spacing + (y * (15 + spacing)))
                 self.entities.append(block)
 
@@ -56,19 +66,17 @@ class game:
         self.running = True
         
         while self.running:            
-            if pygame.time.get_ticks() - self.lastUpdateTime > 1000 / self.updatesPerSecond:
-                self.update()
-                self.lastUpdateTime = pygame.time.get_ticks()
-            
+            self.update()
             self.render()
+            self.clock.tick(60)
             
         pygame.quit()
     
     def update(self):
-        self.handleEvents()
-        
         time = pygame.time.get_ticks()
         timePassed = time - self.lastFrameTime
+        
+        self.handleEvents()
         
         self.updateEntities(time, timePassed)
         
@@ -119,6 +127,9 @@ class game:
         for entity in self.entities:
             entity.draw(self.screen)
         
+        # scoreText = self.font.render('Score: ' + str(self.score), True, (255, 255, 255))
+        # self.screen.blit(scoreText, (0, 0))
+        
         pygame.display.flip()
         
     def findEntitiesInRectangle(self, rectangle, exclude = None):
@@ -129,5 +140,9 @@ class game:
         
         return results
 
+    def increaseScore(self):
+        self.score += 1
+        self.updateTitle()
+    
 services.game = game()
 services.game.run()

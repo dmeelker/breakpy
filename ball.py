@@ -36,13 +36,9 @@ class Ball(entity.entity):
             self.vector.y = self.vector.y * -1    
             
             if isinstance(collidingEntity, entity.paddle):
-                angle = self.vector.angleInDegrees()
-                
                 self.vector.x += collidingEntity.speed / 3.0
                 self.vector = self.vector.limitLength(5)
 
-                print(str(collidingEntity.speed) + " " + str(angle) + " => " + str(self.vector.angleInDegrees()))
-                
             collidingEntity.hitByBall(self)
             return True
         else:

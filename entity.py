@@ -43,9 +43,16 @@ class paddle(entity):
         
 class block(entity):
     image = None
+    hitpoints = 1
     
     def draw(self, screen):
         screen.blit(self.image, (self.location.x, self.location.y))
         
     def hitByBall(self, ball):
+        self.hitpoints -= 1
+        if self.hitpoints == 0:
+            self.destroy()
+            
+    def destroy(self):
+        services.game.increaseScore()
         self.dispose()
