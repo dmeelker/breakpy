@@ -2,13 +2,16 @@ import math
 
 import services
 import entity
+import images
 import datatypes as types
 
 class Ball(entity.entity):
-    image = None
     vector = types.vector(2, -2).toUnit()
     velocity = 6
     
+    def __init__(self):
+        self.setImage(images.get('ball'))
+
     def update(self, time, timePassed):
         velocityToApply = self.vector.multiplyScalar(self.velocity * (timePassed * 0.02))
         
@@ -17,7 +20,7 @@ class Ball(entity.entity):
     
     def handleVerticalCollisions(self, velocityToApply):
         if velocityToApply.y != 0:
-            self.location.y += velocityToApply.y;
+            self.location.y += velocityToApply.y
             
             if self.handleVerticalEntityCollisions(velocityToApply):
                 return
@@ -58,7 +61,7 @@ class Ball(entity.entity):
     
     def handleHorizontalCollisions(self, velocityToApply):
          if velocityToApply.x != 0:
-            self.location.x += velocityToApply.x;
+            self.location.x += velocityToApply.x
             
             if self.handleHorizontalEntityCollisions(velocityToApply):
                 return

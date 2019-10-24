@@ -1,6 +1,7 @@
 import math
 
 import services
+import images
 import datatypes as types
 
 class entity:
@@ -35,24 +36,11 @@ class entity:
         self.size = types.vector(image.get_width(), image.get_height())
     
 class paddle(entity):
-    image = None
     speed = 0
     
+    def __init__(self):
+        self.setImage(images.get('paddle'))
+
     def draw(self, screen):
         screen.blit(self.image, (self.location.x, self.location.y))
         
-class block(entity):
-    image = None
-    hitpoints = 1
-    
-    def draw(self, screen):
-        screen.blit(self.image, (self.location.x, self.location.y))
-        
-    def hitByBall(self, ball):
-        self.hitpoints -= 1
-        if self.hitpoints == 0:
-            self.destroy()
-            
-    def destroy(self):
-        services.game.increaseScore()
-        self.dispose()
