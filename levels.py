@@ -3,7 +3,7 @@ import datatypes as types
 
 def level1(screenSize):
     levelBlocks = []
-    spacing = 8
+    spacing = 1
     
     for y in range(3):
         for x in range(int((screenSize[0] - spacing) / (30 + spacing))):
@@ -15,7 +15,7 @@ def level1(screenSize):
 
 def level2(screenSize):
     levelBlocks = []
-    spacing = 8
+    spacing = 1
     
     for y in range(3):
         for x in range(int((screenSize[0] - spacing) / (30 + spacing))):

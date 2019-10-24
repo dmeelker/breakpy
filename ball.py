@@ -8,15 +8,16 @@ import datatypes as types
 class Ball(entity.entity):
     vector = types.vector(2, -2).toUnit()
     velocity = 6
+    suspended = False
     
     def __init__(self):
         self.setImage(images.get('ball'))
 
     def update(self, time, timePassed):
-        velocityToApply = self.vector.multiplyScalar(self.velocity * (timePassed * 0.02))
-        
-        self.handleVerticalCollisions(velocityToApply)
-        self.handleHorizontalCollisions(velocityToApply)
+		if self.suspended == False:
+			velocityToApply = self.vector.multiplyScalar(self.velocity * (timePassed * 0.02))
+			self.handleVerticalCollisions(velocityToApply)
+			self.handleHorizontalCollisions(velocityToApply)
     
     def handleVerticalCollisions(self, velocityToApply):
         if velocityToApply.y != 0:

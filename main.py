@@ -26,9 +26,11 @@ class game:
     entities = []
     blocks = set()
     paddle = None
+    ball = None
     level = 1
     score = 0
     font = None
+    ballAttached = True
 
     def run(self):
         pygame.init()
@@ -55,14 +57,15 @@ class game:
 
     def loadLevel(self, levelIndex):
         self.entities = []
+        self.ballAttached = True
 
         self.paddle = entity.paddle()
         self.paddle.location = types.vector((self.screenSize[0] / 2) - (self.paddle.size.x / 2), self.screenSize[1] - 20)
         self.entities.append(self.paddle)
         
-        ball = Ball()
-        ball.location = self.paddle.location.add(types.vector(ball.size.x / 2, -ball.size.y))
-        self.entities.append(ball)
+        self.ball = Ball()
+        self.ball.suspended = True
+        self.entities.append(self.ball)
 
         blocks = levels.levels[levelIndex](self.screenSize)
 
@@ -92,7 +95,17 @@ class game:
         
         self.updateEntities(time, timePassed)
         
+        if len(self.blocks) == 0:
+            self.nextLevel()
+        
+        if self.ballAttached:
+            self.ball.location = self.paddle.location.add(types.vector((self.paddle.size.x / 2) - (self.ball.size.x / 2), -self.ball.size.y))
+        
         self.lastFrameTime = time
+    
+    def releaseBall(self):
+        self.ballAttached = False
+        self.ball.suspended = False
     
     def updateEntities(self, time, timePassed):
         disposables = []
@@ -112,26 +125,29 @@ class game:
             elif event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
                 self.handleKeyEvent(event)
         
+        paddleSpeed = 3
         self.paddle.speed = 0
         
         if self.leftButtonDown:
-            self.paddle.location.x -= 2
-            self.paddle.speed = -2
+            self.paddle.location.x -= paddleSpeed
+            self.paddle.speed = -paddleSpeed
             if self.paddle.location.x < 0:
                 self.paddle.location.x = 0
-                self.paddle.speed = 0
+                self.paddle.speed = 2
         elif self.rightButtonDown:
-            self.paddle.location.x += 2
-            self.paddle.speed = 2
+            self.paddle.location.x += paddleSpeed
+            self.paddle.speed = paddleSpeed
             if self.paddle.location.x + self.paddle.size.x > self.screenSize[0]:
                 self.paddle.location.x = self.screenSize[0] - self.paddle.size.x
-                self.paddle.speed = 0
+                self.paddle.speed = 2
                 
     def handleKeyEvent(self, event):
         if event.key == pygame.K_LEFT:
             self.leftButtonDown = event.type == pygame.KEYDOWN
         elif event.key == pygame.K_RIGHT:
             self.rightButtonDown = event.type == pygame.KEYDOWN
+        elif event.key == pygame.K_SPACE and self.ballAttached:
+            self.releaseBall()
     
     def render(self):
         self.screen.fill((0,0,0))
@@ -139,10 +155,14 @@ class game:
         for entity in self.entities:
             entity.draw(self.screen)
         
-        # scoreText = self.font.render('Score: ' + str(self.score), True, (255, 255, 255))
-        # self.screen.blit(scoreText, (0, 0))
+        if self.ballAttached:
+            label = self.font.render('Press SPACE to fire', True, (255, 255, 255))
+            self.renderImageCentered(label)
         
         pygame.display.flip()
+        
+    def renderImageCentered(self, image):
+        self.screen.blit(image, ((self.screenSize[0] / 2) - (image.get_width() / 2), (self.screenSize[1] / 2) - (image.get_height() / 2)))
         
     def findEntitiesInRectangle(self, rectangle, exclude = None):
         results = []
@@ -155,9 +175,6 @@ class game:
     def blockDestroyed(self, block):
         self.blocks.remove(block)
         self.increaseScore()
-
-        if len(self.blocks) == 0:
-            self.nextLevel()
 
     def increaseScore(self):
         self.score += 1
